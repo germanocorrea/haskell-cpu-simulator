@@ -120,7 +120,7 @@ fetch state = finalState
 decode :: State -> State
 decode state
   | ins == sto = state {control = (control state) {write_to_mem = True}}
-  | ins == cpe || ins == add || ins == sub = state {control = (control state) {read_from_mem = True}} -- apesar de escreverem em ACC, a ULA faz isso direto pois ela possui conexao
+  | ins == cpe || ins == add || ins == sub = state {control = (control state) {read_from_mem = True}} -- apesar de escreverem em ACC, a ULA faz isso direto pois ela possui conexao direta
   | ins == lod = state {control = (control state) {write_back_to_acc = True, read_from_mem = True}}
   | ins == jmp = state {control = (control state) {write_back_to_pc = True}}
   | ins == jmz = state {control = (control state) {write_back_to_pc = eqzFlag}}
