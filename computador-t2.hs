@@ -60,10 +60,10 @@ initialState :: State
 initialState =
   State
     { mem = [],
-      pc = 0, -- O contador de instruções é inicializado com zero [cite: 45]
+      pc = 0, -- O contador de instruções é inicializado com zero
       ireg = (0, 0),
       acc = 0,
-      eqz = True, -- EQZ indica se o acumulador é igual a zero [cite: 48]
+      eqz = True, -- EQZ indica se o acumulador é igual a zero
       rdm = 0,
       rem' = 0,
       control =
@@ -79,6 +79,7 @@ initialState =
 {-- TODO:
  -  ler arquivo com 3 itens por linha (0 LOD 241 por ex)
  -  verificar como a prof como deve inputar os valores A e B do código
+ -  verificar com a prof se é um problema inverter memory e execute?
  -  verificar os negativos
  -  fazer arquivos assembly
 --}
@@ -180,8 +181,8 @@ memory state
 execute :: State -> State
 execute state
   | ins == cpe = state {acc = if rdm state == acc state then 0 else 1}
-  | ins == add = state {acc = truncateIfOverflow (rdm state + acc state)}
-  | ins == sub = state {acc = truncateIfOverflow (rdm state - acc state)}
+  | ins == add = state {acc = truncateDecimal (rdm state + acc state)}
+  | ins == sub = state {acc = truncateDecimal (rdm state - acc state)}
   | otherwise = state
   where
     ins = fst (ireg state)
@@ -211,7 +212,7 @@ persistAddress address content (item : memory)
   | fst item == address = (address, content) : memory
   | otherwise = item : persistAddress address content memory
 
-truncateIfOverflow :: Int -> Int
-truncateIfOverflow x
+truncateDecimal :: Int -> Int
+truncateDecimal x
   | x > 255 = 0
   | otherwise = x
