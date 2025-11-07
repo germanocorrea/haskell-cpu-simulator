@@ -1,4 +1,6 @@
-import Debug.Trace
+import Control.Monad
+import System.Environment
+import System.IO
 
 type Address = Int
 
@@ -54,24 +56,6 @@ nop = 18
 
 hcf = 20
 
-programaCarregado :: Mem
-programaCarregado =
-  [ -- Código do programa (iniciando em 0)
-    (0, 2), -- Instrução LOD [cite: 53]
-    (1, 240), -- Operando <end> (Endereço de A)
-    (2, 14), -- Instrução ADD [cite: 53]
-    (3, 241), -- Operando <end> (Endereço de B)
-    (4, 4), -- Instrução STO [cite: 53]
-    (5, 251), -- Operando <end> (Endereço de Resp)
-    (6, 20), -- Instrução HCF [cite: 53]
-    (7, 18), -- Operando NOP (conforme exemplo do PDF) [cite: 80]
-
-    -- Dados do programa [cite: 7]
-    (240, 10), -- Valor inicial de A
-    (241, 5), -- Valor inicial de B
-    (251, 0) -- Valor inicial de Resp (será sobrescrito)
-  ]
-
 initialState :: State
 initialState =
   State
@@ -91,6 +75,63 @@ initialState =
             finish = False
           }
     }
+
+{-- TODO:
+ -  fazer overflow
+ -  ler arquivo com 3 itens por linha (0 LOD 241 por ex)
+ -  verificar como a prof como deve inputar os valores A e B do código
+ -  fazer arquivos assembly
+--}
+main = do
+  args <- getArgs
+  progAsMem <- parseAsMem (head args)
+  let finalState = cpu initialState {mem = progAsMem}
+  let (a, b, c, d, e) = selectVideoMem finalState
+  putStr (show a)
+  putStr " "
+  putStr (show b)
+  putStr " "
+  putStr (show c)
+  putStr " "
+  putStr (show d)
+  putStr " "
+  putStr (show e)
+  putStrLn ""
+
+parseAsMem :: String -> IO Mem
+parseAsMem filename = do
+  contents <- readFile filename
+  let memoria = instructionListFileAsMem (words contents) 0
+  return memoria
+
+selectVideoMem :: State -> (Content, Content, Content, Content, Content)
+selectVideoMem state =
+  ( selectAddress 251 (mem state),
+    selectAddress 252 (mem state),
+    selectAddress 253 (mem state),
+    selectAddress 254 (mem state),
+    selectAddress 255 (mem state)
+  )
+
+instructionListFileAsMem :: [String] -> Address -> Mem
+instructionListFileAsMem [] _ = []
+instructionListFileAsMem (instruction : insList) firstAddress = memItem : instructionListFileAsMem insList (firstAddress + 1)
+  where
+    parsed = if even firstAddress then parseInstructionCode instruction else read instruction
+    memItem = (firstAddress, parsed)
+
+parseInstructionCode :: String -> Content
+parseInstructionCode ins
+  | ins == "LOD" = lod
+  | ins == "STO" = sto
+  | ins == "JMP" = jmp
+  | ins == "JMZ" = jmz
+  | ins == "CPE" = cpe
+  | ins == "ADD" = add
+  | ins == "SUB" = sub
+  | ins == "NOP" = nop
+  | ins == "HCF" = hcf
+  | otherwise = nop
 
 -- FETCH, DECODE, EXECUTE, MEMORY ACCESS, WRITE BACK
 -- Memory antes de execute????
