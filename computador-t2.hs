@@ -77,9 +77,9 @@ initialState =
     }
 
 {-- TODO:
- -  fazer overflow
  -  ler arquivo com 3 itens por linha (0 LOD 241 por ex)
  -  verificar como a prof como deve inputar os valores A e B do código
+ -  verificar os negativos
  -  fazer arquivos assembly
 --}
 main = do
@@ -180,8 +180,8 @@ memory state
 execute :: State -> State
 execute state
   | ins == cpe = state {acc = if rdm state == acc state then 0 else 1}
-  | ins == add = state {acc = rdm state + acc state}
-  | ins == sub = state {acc = rdm state - acc state}
+  | ins == add = state {acc = truncateIfOverflow (rdm state + acc state)}
+  | ins == sub = state {acc = truncateIfOverflow (rdm state - acc state)}
   | otherwise = state
   where
     ins = fst (ireg state)
@@ -210,3 +210,8 @@ persistAddress address content [] = [(address, content)]
 persistAddress address content (item : memory)
   | fst item == address = (address, content) : memory
   | otherwise = item : persistAddress address content memory
+
+truncateIfOverflow :: Int -> Int
+truncateIfOverflow x
+  | x > 255 = 0
+  | otherwise = x
