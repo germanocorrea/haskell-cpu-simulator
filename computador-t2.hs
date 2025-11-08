@@ -81,7 +81,6 @@ initialState =
 main = do
   args <- getArgs
   progAsMem <- parseAsMem (head args)
-  let progAsMem = progAsMem
   let finalState = cpu initialState {mem = progAsMem}
   let (a, b, c, d, e) = selectVideoMem finalState
   putStr (show a)
@@ -178,7 +177,7 @@ execute :: State -> State
 execute state
   | ins == cpe = state {acc = if rdm state == acc state then 0 else 1}
   | ins == add = state {acc = truncateDecimal (rdm state + acc state)}
-  | ins == sub = state {acc = truncateDecimal (rdm state - acc state)}
+  | ins == sub = state {acc = truncateDecimal (acc state - rdm state)}
   | otherwise = state
   where
     ins = fst (ireg state)
@@ -209,6 +208,4 @@ persistAddress address content (item : memory)
   | otherwise = item : persistAddress address content memory
 
 truncateDecimal :: Int -> Int
-truncateDecimal x
-  | x > 255 = 0
-  | otherwise = x
+truncateDecimal x = x `mod` 256
