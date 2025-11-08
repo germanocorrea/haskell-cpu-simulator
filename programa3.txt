@@ -1,0 +1,52 @@
+// A=0; Resp = 1; while(A < 5) { A = A + 1; Resp = Resp + 2; }
+// 0  LOD 245  // ACC = 0
+// 2  STO 240  // A = 0
+// 4  LOD 246  // ACC = 1
+// 6  STO 251  // Resp = 1
+// 8  LOD 240  // Loop: ACC = A
+// 10 CPE 247  // Compara ACC (A) com 5. Se A==5, ACC=0. Se A!=5, ACC=1.
+// 12 JMZ 28   // Se ACC == 0 (A == 5), pule para HCF (addr 28)
+// 14 LOD 240  // ACC = A
+// 16 ADD 246  // ACC = A + 1
+// 18 STO 240  // A = ACC
+// 20 LOD 251  // ACC = Resp
+// 22 ADD 248  // ACC = Resp + 2
+// 24 STO 251  // Resp = ACC
+// 26 JMP 8    // Pula para Loop (addr 8)
+// 28 HCF NOP  // HALT
+0 2   // LOD
+1 245 // <end> 245 (Const 0)
+2 4   // STO
+3 240 // <end> 240 (A)
+4 2   // LOD
+5 246 // <end> 246 (Const 1)
+6 4   // STO
+7 251 // <end> 251 (Resp)
+8 2   // LOD (Início Loop)
+9 240 // <end> 240 (A)
+10 10  // CPE
+11 247 // <end> 247 (Const 5)
+12 8   // JMZ
+13 28  // <end> 28 (Endereço HCF)
+14 2   // LOD
+15 240 // <end> 240 (A)
+16 14  // ADD
+17 246 // <end> 246 (Const 1)
+18 4   // STO
+19 240 // <end> 240 (A)
+20 2   // LOD
+21 251 // <end> 251 (Resp)
+22 14  // ADD
+23 248 // <end> 248 (Const 2)
+24 4   // STO
+25 251 // <end> 251 (Resp)
+26 6   // JMP
+27 8   // <end> 8 (Início Loop)
+28 20  // HCF
+29 18  // <end> NOP (filler)
+240 0   // A (será inicializado pelo programa)
+245 0   // Constante 0
+246 1   // Constante 1
+247 5   // Constante 5
+248 2   // Constante 2
+251 0   // Resp (será inicializado pelo programa)

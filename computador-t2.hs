@@ -1,4 +1,6 @@
 import Control.Monad
+import Debug.Trace
+import Distribution.Compat.Prelude (readMaybe)
 import System.Environment
 import System.IO
 
@@ -76,16 +78,10 @@ initialState =
           }
     }
 
-{-- TODO:
- -  ler arquivo com 3 itens por linha (0 LOD 241 por ex)
- -  verificar como a prof como deve inputar os valores A e B do código
- -  verificar com a prof se é um problema inverter memory e execute?
- -  verificar os negativos
- -  fazer arquivos assembly
---}
 main = do
   args <- getArgs
   progAsMem <- parseAsMem (head args)
+  let progAsMem = progAsMem
   let finalState = cpu initialState {mem = progAsMem}
   let (a, b, c, d, e) = selectVideoMem finalState
   putStr (show a)
@@ -102,7 +98,7 @@ main = do
 parseAsMem :: String -> IO Mem
 parseAsMem filename = do
   contents <- readFile filename
-  let memoria = instructionListFileAsMem (words contents) 0
+  let memoria = fromFileToMem (lines contents) 0
   return memoria
 
 selectVideoMem :: State -> (Content, Content, Content, Content, Content)
@@ -114,25 +110,25 @@ selectVideoMem state =
     selectAddress 255 (mem state)
   )
 
-instructionListFileAsMem :: [String] -> Address -> Mem
-instructionListFileAsMem [] _ = []
-instructionListFileAsMem (instruction : insList) firstAddress = memItem : instructionListFileAsMem insList (firstAddress + 1)
+fromFileToMem :: [String] -> Address -> Mem
+fromFileToMem [] _ = []
+fromFileToMem (line : lines) address = memItem ++ fromFileToMem lines (address + 1)
   where
-    parsed = if even firstAddress then parseInstructionCode instruction else read instruction
-    memItem = (firstAddress, parsed)
+    processed = processFileLine line
+    memItem = maybe [] (: []) processed
 
-parseInstructionCode :: String -> Content
-parseInstructionCode ins
-  | ins == "LOD" = lod
-  | ins == "STO" = sto
-  | ins == "JMP" = jmp
-  | ins == "JMZ" = jmz
-  | ins == "CPE" = cpe
-  | ins == "ADD" = add
-  | ins == "SUB" = sub
-  | ins == "NOP" = nop
-  | ins == "HCF" = hcf
-  | otherwise = nop
+processFileLine :: String -> Maybe MemItem
+processFileLine line = extractMemItem parts
+  where
+    parts = takeWhile (/= "//") (words line)
+
+extractMemItem :: [String] -> Maybe MemItem
+extractMemItem [] = Nothing
+extractMemItem [_] = Nothing
+extractMemItem (addrString : (contString : _)) = do
+  addr <- readMaybe addrString
+  cont <- readMaybe contString
+  return (addr, cont)
 
 -- FETCH, DECODE, EXECUTE, MEMORY ACCESS, WRITE BACK
 -- Memory antes de execute????
