@@ -3,7 +3,7 @@
 // 2  ADD 241  // ACC = ACC + B
 // 4  SUB 245  // ACC = ACC - 2 (Constante '2' em 245)
 // 6  STO 251  // Resp = ACC
-// 8  HCF 18   // Parar (18 = NOP, usado como filler)
+// 8  HCF NOP  // Parar (18 = NOP, usado como filler)
 0 2   // LOD
 1 240 // <end> 240
 2 14  // ADD

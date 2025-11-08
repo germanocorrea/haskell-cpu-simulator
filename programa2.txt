@@ -10,7 +10,7 @@
 // 16 SUB 246  // ACC = B - 1
 // 18 STO 241  // B = ACC (Decrementa B)
 // 20 JMP 4    // Pula para loop (addr 4)
-// 22 HCF 18   // HALT
+// 22 HCF NOP  // HALT
 0 2   // LOD
 1 245 // <end> 245 (Const 0)
 2 4   // STO
