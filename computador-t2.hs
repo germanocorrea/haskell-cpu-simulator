@@ -83,6 +83,7 @@ main = do
   progAsMem <- parseAsMem (head args)
   let finalState = cpu initialState {mem = progAsMem}
   let (a, b, c, d, e) = selectVideoMem finalState
+  putStrLn "Memoria de Video: "
   putStr (show a)
   putStr " "
   putStr (show b)
@@ -93,6 +94,9 @@ main = do
   putStr " "
   putStr (show e)
   putStrLn ""
+  putStrLn ""
+  putStrLn "Memoria Completa: "
+  print (mem finalState)
 
 parseAsMem :: String -> IO Mem
 parseAsMem filename = do
