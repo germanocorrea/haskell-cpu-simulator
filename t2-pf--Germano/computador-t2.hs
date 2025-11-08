@@ -134,6 +134,7 @@ extractMemItem (addrString : (contString : _)) = do
   return (addr, cont)
 
 -- FETCH, DECODE, EXECUTE, MEMORY ACCESS, WRITE BACK
+-- Memory antes de execute????
 cpu :: State -> State
 cpu state = finalState
   where
